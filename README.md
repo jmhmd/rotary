@@ -131,6 +131,11 @@ Enable High Ring Power: Yes **
 ** - maybe not necessary, but makes ringer more likely to work
 ```
 
+I also had to go to `Advanced Settings` and set:
+```
+STUN server is: stun.l.google.com:19302
+```
+
 Replace the host with the host from the SIP Domain you created in Twilio. And replace `defaultuser` and `remotesecret` values with the username and password from the Credentials List you created.
 
 * `qualify=yes` will cause Asterisk to keep the NAT hole alive by periodically sending OPTIONS requests. 
