@@ -118,45 +118,24 @@ Back in the Grandstream settings, go to the `fxs-1` tab, and set:
 ```
 Active: Yes
 Primary SIP Server: [SIP domain address from twilio, i.e. [name].sip.us1.twilio.com]
-<!-- NAT Traversal: Keep-Alive * -->
-SIP User ID: rotary
-SIP Authenticate ID: rotary
+NAT Traversal: STUN *
+SIP User ID: rotary // or whatever you choose
+SIP Authenticate ID: rotary // or whatever you choose
 SIP Registration: Yes
-Enable SIP OPTIONS/Notify Keep-Alive: OPTIONS *
 Enable Pulse Dialing: Yes
 Enable Hook Flash: Yes
 Enable High Ring Power: Yes **
 
-* - only required because of the RPi wifi bridge
+* - maybe not necessary depending on your network setup
 ** - maybe not necessary, but makes ringer more likely to work
 ```
 
-I also had to go to `Advanced Settings` and set:
+I did have to enable STUN, and go to `Advanced Settings` and set:
 ```
 STUN server is: stun.l.google.com:19302
 ```
+which I think uses a public google STUN server.
 
-Replace the host with the host from the SIP Domain you created in Twilio. And replace `defaultuser` and `remotesecret` values with the username and password from the Credentials List you created.
-
-* `qualify=yes` will cause Asterisk to keep the NAT hole alive by periodically sending OPTIONS requests. 
-* `defaultexpiry` and `minexpiry` keep us from sending so many pings that Twilio rate-limits us. 
-* `context=from-twilio` means that incoming calls will wind up in the `from-twilio` context in `extensions.conf`, where you can route them to your rotary phone:
-
-
-#### Dialing out
-
-With the connection established, we need to tell Asterisk how to route a call to Twilio, and need to tell Twilio what to do when it gets it.
-
-Asterisk config, in `extensions.conf`:
-
-```
-exten => 81,1,Answer() ; Call Dad
- same => n,GoSub(speak,s,1("Calling dad\!\!"))
- same => n,Set(CALLERID(all)="Rotary"<19787777777>)
- same => n,Dial(SIP/twilio/+12565121024)
-```
-
-In this case you'd replace `19787777777` with the Twilio phone number you purchased, and `12565121024` with the number you're calling. I'm not entirely sure the caller ID part is necessary, but it seems like it.
 
 Back in Twilio, we want our SIP domain to receive a call and pass it right on through via our purchased phone number. To do this we can create a [TwiML bin](https://console.twilio.com/us1/develop/twiml-bins/twiml-bins):
 
